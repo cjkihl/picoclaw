@@ -62,13 +62,14 @@ type SkillsLoader struct {
 	workspace       string
 	workspaceSkills string // workspace skills (project-level)
 	globalSkills    string // global skills (~/.picoclaw/skills)
+	sharedSkills    string // shared skills (~/.agents/skills)
 	builtinSkills   string // builtin skills
 }
 
 // SkillRoots returns all unique skill root directories used by this loader.
-// The order follows resolution priority: workspace > global > builtin.
+// The order follows resolution priority: workspace > global > shared > builtin.
 func (sl *SkillsLoader) SkillRoots() []string {
-	roots := []string{sl.workspaceSkills, sl.globalSkills, sl.builtinSkills}
+	roots := []string{sl.workspaceSkills, sl.globalSkills, sl.sharedSkills, sl.builtinSkills}
 	seen := make(map[string]struct{}, len(roots))
 	out := make([]string, 0, len(roots))
 
@@ -88,11 +89,12 @@ func (sl *SkillsLoader) SkillRoots() []string {
 	return out
 }
 
-func NewSkillsLoader(workspace string, globalSkills string, builtinSkills string) *SkillsLoader {
+func NewSkillsLoader(workspace string, globalSkills string, sharedSkills string, builtinSkills string) *SkillsLoader {
 	return &SkillsLoader{
 		workspace:       workspace,
 		workspaceSkills: filepath.Join(workspace, "skills"),
 		globalSkills:    globalSkills, // ~/.picoclaw/skills
+		sharedSkills:    sharedSkills, // ~/.agents/skills
 		builtinSkills:   builtinSkills,
 	}
 }
@@ -139,9 +141,10 @@ func (sl *SkillsLoader) ListSkills() []SkillInfo {
 		}
 	}
 
-	// Priority: workspace > global > builtin
+	// Priority: workspace > global > shared > builtin
 	addSkills(sl.workspaceSkills, "workspace")
 	addSkills(sl.globalSkills, "global")
+	addSkills(sl.sharedSkills, "shared")
 	addSkills(sl.builtinSkills, "builtin")
 
 	return skills
@@ -164,7 +167,15 @@ func (sl *SkillsLoader) LoadSkill(name string) (string, bool) {
 		}
 	}
 
-	// 3. finally load from builtin skills
+	// 3. then load from shared skills (~/.agents/skills)
+	if sl.sharedSkills != "" {
+		skillFile := filepath.Join(sl.sharedSkills, name, "SKILL.md")
+		if content, err := os.ReadFile(skillFile); err == nil {
+			return sl.stripFrontmatter(string(content)), true
+		}
+	}
+
+	// 4. finally load from builtin skills
 	if sl.builtinSkills != "" {
 		skillFile := filepath.Join(sl.builtinSkills, name, "SKILL.md")
 		if content, err := os.ReadFile(skillFile); err == nil {

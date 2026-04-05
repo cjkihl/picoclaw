@@ -2,6 +2,7 @@ package skills
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -43,7 +44,11 @@ func NewSkillsCommand() *cobra.Command {
 			globalDir := filepath.Dir(internal.GetConfigPath())
 			globalSkillsDir := filepath.Join(globalDir, "skills")
 			builtinSkillsDir := filepath.Join(globalDir, "picoclaw", "skills")
-			d.skillsLoader = skills.NewSkillsLoader(d.workspace, globalSkillsDir, builtinSkillsDir)
+
+			// shared skills: skills directory in ~/.agents/skills (shared across all agents)
+			sharedSkillsDir := filepath.Join(os.Getenv("HOME"), "agents", "skills")
+
+			d.skillsLoader = skills.NewSkillsLoader(d.workspace, globalSkillsDir, sharedSkillsDir, builtinSkillsDir)
 
 			return nil
 		},

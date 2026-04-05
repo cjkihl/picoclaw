@@ -193,6 +193,7 @@ func newSkillsLoader(workspace string) *skills.SkillsLoader {
 	return skills.NewSkillsLoader(
 		workspace,
 		filepath.Join(globalConfigDir(), "skills"),
+		sharedSkillsDir(),
 		builtinSkillsDir(),
 	)
 }
@@ -328,4 +329,15 @@ func builtinSkillsDir() string {
 		return ""
 	}
 	return filepath.Join(wd, "skills")
+}
+
+func sharedSkillsDir() string {
+	if path := os.Getenv("PICOCLAW_SHARED_SKILLS"); path != "" {
+		return path
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+	return filepath.Join(home, "agents", "skills")
 }

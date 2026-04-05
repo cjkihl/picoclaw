@@ -72,9 +72,16 @@ func NewContextBuilder(workspace string) *ContextBuilder {
 	}
 	globalSkillsDir := filepath.Join(getGlobalConfigDir(), "skills")
 
+	// shared skills: skills directory in ~/.agents/skills (shared across all agents)
+	sharedSkillsDir := strings.TrimSpace(os.Getenv("PICOCLAW_SHARED_SKILLS"))
+	if sharedSkillsDir == "" {
+		home, _ := os.UserHomeDir()
+		sharedSkillsDir = filepath.Join(home, "agents", "skills")
+	}
+
 	return &ContextBuilder{
 		workspace:    workspace,
-		skillsLoader: skills.NewSkillsLoader(workspace, globalSkillsDir, builtinSkillsDir),
+		skillsLoader: skills.NewSkillsLoader(workspace, globalSkillsDir, sharedSkillsDir, builtinSkillsDir),
 		memory:       NewMemoryStore(workspace),
 	}
 }
