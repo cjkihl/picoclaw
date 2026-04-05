@@ -46,7 +46,7 @@ func NewSkillsCommand() *cobra.Command {
 			builtinSkillsDir := filepath.Join(globalDir, "picoclaw", "skills")
 
 			// shared skills: skills directory in ~/.agents/skills (shared across all agents)
-			sharedSkillsDir := filepath.Join(os.Getenv("HOME"), "agents", "skills")
+			sharedSkillsDir := filepath.Join(os.Getenv("HOME"), ".agents", "skills")
 
 			d.skillsLoader = skills.NewSkillsLoader(d.workspace, globalSkillsDir, sharedSkillsDir, builtinSkillsDir)
 

@@ -339,5 +339,5 @@ func sharedSkillsDir() string {
 	if err != nil {
 		return ""
 	}
-	return filepath.Join(home, "agents", "skills")
+	return filepath.Join(home, ".agents", "skills")
 }

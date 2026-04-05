@@ -76,7 +76,7 @@ func NewContextBuilder(workspace string) *ContextBuilder {
 	sharedSkillsDir := strings.TrimSpace(os.Getenv("PICOCLAW_SHARED_SKILLS"))
 	if sharedSkillsDir == "" {
 		home, _ := os.UserHomeDir()
-		sharedSkillsDir = filepath.Join(home, "agents", "skills")
+		sharedSkillsDir = filepath.Join(home, ".agents", "skills")
 	}
 
 	return &ContextBuilder{
